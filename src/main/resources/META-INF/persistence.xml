@@ -11,6 +11,8 @@
         <class>com.lankheet.iot.datatypes.MeasurementType</class>
         <class>com.lankheet.iot.datatypes.Sensor</class>
         <class>com.lankheet.iot.datatypes.SensorType</class>
+        <class>com.lankheet.iot.datatypes.DomoticsUser"</class>
+        <class>com.lankheet.iot.crypto.CryptoConverter</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
