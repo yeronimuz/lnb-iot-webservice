@@ -19,33 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.lankheet.iot.webservice.resources;
+package com.lankheet.iot.webservice.auth;
 
-import java.io.IOException;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import com.codahale.metrics.annotation.Timed;
+import java.util.Optional;
+import com.lankheet.iot.datatypes.DomoticsUser;
+import io.dropwizard.auth.AuthenticationException;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.basic.BasicCredentials;
 
-@Path("/info")
-@Produces(MediaType.APPLICATION_JSON)
-public class WebServiceInfoResource {
-    private WebServiceInfo webServiceInfo;
-
-    public WebServiceInfoResource(WebServiceInfo webServiceInfo) {
-        this.webServiceInfo = webServiceInfo;
-    }
-
-    /**
-     * Returns application and version info of the WebService.
-     * 
-     * @return WebService info; version and description
-     * @throws IOException Manifest of this JAR could not be read
-     */
-    @GET
-    @Timed
-    public WebServiceInfo webServiceInfo() throws IOException {
-        return webServiceInfo;
+/**
+ * description.
+ *
+ */
+public class DomoticsUserAuthenticator implements Authenticator<BasicCredentials, DomoticsUser> {
+    @Override
+    public Optional<DomoticsUser> authenticate(BasicCredentials credentials) throws AuthenticationException {
+        if ("secret".equals(credentials.getPassword()) && "userName".equals(credentials.getUsername())) {
+            return Optional.of(new DomoticsUser(credentials.getUsername(), credentials.getPassword()));
+        }
+        return Optional.empty();
     }
 }

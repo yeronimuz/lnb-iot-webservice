@@ -1,15 +1,41 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2017 Lankheet Software and System Solutions
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.lankheet.iot.webservice;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import com.lankheet.iot.datatypes.DomoticsUser;
+import com.lankheet.iot.webservice.auth.DomoticsUserAuthenticator;
+import com.lankheet.iot.webservice.auth.DomoticsUserAuthorizer;
 import com.lankheet.iot.webservice.config.WebServiceConfig;
 import com.lankheet.iot.webservice.health.DatabaseHealthCheck;
-import com.lankheet.iot.webservice.health.MqttConnectionHealthCheck;
 import com.lankheet.iot.webservice.resources.MeasurementsResource;
 import com.lankheet.iot.webservice.resources.WebServiceInfo;
 import com.lankheet.iot.webservice.resources.WebServiceInfoResource;
-import com.lankheet.utils.TcpPortUtil;
 import io.dropwizard.Application;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -21,10 +47,7 @@ import io.dropwizard.setup.Environment;
  *
  */
 public class WebService extends Application<WebServiceConfig> {
-    private static final Logger LOG = LogManager.getLogger(WebService.class);
-    private static final int TIMEOUT_FOR_PORTSCAN = 200;
-    private static final int DEFAULT_MQTT_PORT = 1883;
-    private static final String DEFAULT_MQTT_HOST = "localhost";
+    private static final Logger LOG = LoggerFactory.getLogger(WebService.class);
 
     private WebServiceConfig configuration;
 
@@ -44,24 +67,26 @@ public class WebService extends Application<WebServiceConfig> {
     @Override
     public void run(WebServiceConfig configuration, Environment environment) throws Exception {
         this.setConfiguration(configuration);
-        if (!TcpPortUtil.isPortOpen(DEFAULT_MQTT_HOST, DEFAULT_MQTT_PORT, TIMEOUT_FOR_PORTSCAN)) {
-            LOG.fatal("Mqtt port not accessible");
-            System.exit(-1);
-        } else {
-            LOG.info("MQTT port available");
-        }
         DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
-        MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
+//        MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
         WebServiceInfoResource webServiceInfoResource = new WebServiceInfoResource(new WebServiceInfo());
         MeasurementsResource measurementsResource = new MeasurementsResource(dbManager);
         environment.getApplicationContext().setContextPath("/api");
-        environment.lifecycle().manage(mqttClientManager);
+//        environment.lifecycle().manage(mqttClientManager);
         environment.lifecycle().manage(dbManager);
         environment.jersey().register(webServiceInfoResource);
         environment.jersey().register(measurementsResource);
-
+        environment.jersey().register(new AuthDynamicFeature(
+                new BasicCredentialAuthFilter.Builder<DomoticsUser>()
+                    .setAuthenticator(new DomoticsUserAuthenticator())
+                    .setAuthorizer(new DomoticsUserAuthorizer())
+                    .setRealm("SUPER SECRET STUFF")
+                    .buildAuthFilter()));
+        environment.jersey().register(RolesAllowedDynamicFeature.class);
+        //If you want to use @Auth to inject a custom Principal type into your resource
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(DomoticsUser.class));        
         environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager));
-        environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
+//        environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
     }
 
     public WebServiceConfig getConfiguration() {
