@@ -22,7 +22,7 @@
 package com.lankheet.iot.webservice.auth;
 
 import java.util.Optional;
-import com.lankheet.iot.datatypes.DomoticsUser;
+import com.lankheet.iot.datatypes.entities.DomoticsUser;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;

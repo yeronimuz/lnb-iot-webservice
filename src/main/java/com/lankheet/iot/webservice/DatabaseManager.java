@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.DomoticsUser;
+import com.lankheet.iot.datatypes.entities.Measurement;
 import com.lankheet.iot.webservice.config.DatabaseConfig;
 import com.lankheet.iot.webservice.dao.DaoListener;
 import io.dropwizard.lifecycle.Managed;
@@ -65,45 +65,20 @@ public class DatabaseManager implements Managed, DaoListener {
         emf.close();
     }
 
-    @Override
-    public void newMeasurement(Measurement measurement) {
-        if (!isRepeatedMeasurement(measurement)) {
-            LOG.info("Storing: " + measurement);
-            em.getTransaction().begin();
-            em.persist(measurement);
-            em.getTransaction().commit();
-        } else {
-            LOG.info("Ignoring repeated measurement: " + measurement);
-        }
-    }
-
-    private boolean isRepeatedMeasurement(Measurement measurement) {
-        boolean returnValue = false;
-        int sensorId = measurement.getSensorId();
-        int type = measurement.getType();
-        double value = measurement.getValue();
-        Measurement measLast = null;
-        try {
-            measLast =
-                    (Measurement) em
-                            .createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId
-                                    + " AND e.type = " + type + " order by e.id desc")
-                            .setMaxResults(1).getSingleResult();
-            returnValue = (value == measLast.getValue());
-        } catch (NoResultException ex) {
-            returnValue = false;
-        }
-        return returnValue;
-    }
 
     @Override
-    public List<Measurement> getMeasurementsBySensor(int sensorId) {
+    public List<Measurement> getMeasurementsBySensor(DomoticsUser dUser, int sensorId) {
         return em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId).getResultList();
     }
 
     @Override
-    public List<Measurement> getMeasurementsBySensorAndType(int sensorId, int type) {
+    public List<Measurement> getMeasurementsBySensorAndType(DomoticsUser dUser, int sensorId, int type) {
         return em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId + " AND e.type = " + type)
                 .getResultList();
+    }
+
+    @Override
+    public Measurement getLatestMeasurement(DomoticsUser dUser) {
+        return (Measurement) em.createQuery("SELECT e FROM measurements e ORDER BY t.id DESC").getResultList().get(0);
     }
 }

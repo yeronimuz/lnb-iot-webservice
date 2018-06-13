@@ -21,9 +21,8 @@
 
 package com.lankheet.iot.webservice;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,15 +31,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.lankheet.iot.datatypes.Measurement;
-import com.lankheet.iot.datatypes.MeasurementType;
-import com.lankheet.iot.datatypes.Sensor;
-import com.lankheet.iot.datatypes.SensorType;
+import com.lankheet.iot.datatypes.entities.Measurement;
+import com.lankheet.iot.datatypes.entities.MeasurementType;
+import com.lankheet.iot.datatypes.entities.Sensor;
 import com.lankheet.iot.webservice.config.DatabaseConfig;
-import com.lankheet.iot.webservice.testutils.TestUtils;
 
 /**
  * Test for @link {@link WebService} A database is required An mqtt server is required
@@ -51,7 +47,6 @@ public class WebServiceTest {
     private static WebService webService = new WebService();
     private static EntityManagerFactory emf;
     private static EntityManager em;
-    private static MqttClient mqttClient;
 
     @BeforeClass
     public static void doSetup() throws Exception {
@@ -73,18 +68,14 @@ public class WebServiceTest {
 //        em.getTransaction().begin();
 //        em.persist(sensor1);
 //        em.getTransaction().commit();
-        mqttClient = TestUtils.createMqttClientConnection();
     }
 
     @Test
     public void testEndToEndTest() throws Exception {
-        Measurement measurement = new Measurement(1, new Date(), MeasurementType.ACTUAL_CONSUMED_POWER.getId(), 1.1);
-        TestUtils.sendMqttMeasurement(mqttClient, measurement);
-        assertTrue(mqttClient.isConnected());
-        // Give the service some time to finish
+        Measurement measurement = new Measurement(new Sensor(), new Date(), MeasurementType.ACTUAL_CONSUMED_POWER, 1.1);
         Thread.sleep(2000);
-        Query query = em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + measurement.getSensorId()
-                + "AND e.type = " + measurement.getType() + " AND e.value = " + measurement.getValue());
+        Query query = em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + measurement.getSensor()
+                + "AND e.type = " + measurement.getMeasurementType() + " AND e.value = " + measurement.getValue());
         List<Measurement> resultList = query.getResultList();
         int numberOfDuplicates = resultList.size();
         assertThat(numberOfDuplicates, is(1));

@@ -21,10 +21,10 @@
 
 package com.lankheet.iot.webservice;
 
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import com.lankheet.iot.datatypes.DomoticsUser;
+import com.lankheet.iot.datatypes.entities.DomoticsUser;
 import com.lankheet.iot.webservice.auth.DomoticsUserAuthenticator;
 import com.lankheet.iot.webservice.auth.DomoticsUserAuthorizer;
 import com.lankheet.iot.webservice.config.WebServiceConfig;

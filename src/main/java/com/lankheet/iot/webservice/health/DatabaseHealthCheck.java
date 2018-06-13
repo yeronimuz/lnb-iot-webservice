@@ -21,25 +21,39 @@
 
 package com.lankheet.iot.webservice.health;
 
-import java.util.List;
+import java.util.Date;
 import com.codahale.metrics.health.HealthCheck;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.DomoticsUser;
+import com.lankheet.iot.datatypes.entities.Measurement;
 import com.lankheet.iot.webservice.DatabaseManager;
 
+/**
+ * Healthcheck for the database.
+ */
 public class DatabaseHealthCheck extends HealthCheck {
-	private DatabaseManager dbManager;
+    private static Date previousLatestMeasurement;
+    private DatabaseManager dbManager;
 
-	public DatabaseHealthCheck(DatabaseManager dbManager) {
-		this.dbManager = dbManager;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param dbManager The DatabaseManager that is consulted.
+     */
+    public DatabaseHealthCheck(DatabaseManager dbManager) {
+        this.dbManager = dbManager;
+        previousLatestMeasurement = new Date();
+        previousLatestMeasurement.setTime(1L);
+    }
 
-	@Override
-	protected Result check() {
-	    Result result = Result.unhealthy("Nothing retrieved from database");
-	    List<Measurement> measList = dbManager.getMeasurementsBySensor(1);
-	    if (measList.size() > 0) {
-			result =  Result.healthy("Healthy");
-		}
-		return result;
-	}
+    @Override
+    protected Result check() {
+        Result result = Result.unhealthy("Nothing retrieved from database");
+        Measurement measurement = dbManager.getLatestMeasurement(new DomoticsUser("user", "password"));
+        if (measurement != null) {
+            long diff = measurement.getTimeStamp().getTime() - previousLatestMeasurement.getTime();
+            previousLatestMeasurement = measurement.getTimeStamp();
+            result = Result.healthy("Healthy; " + diff + " ms");
+        }
+        return result;
+    }
 }

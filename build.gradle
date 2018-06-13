@@ -58,14 +58,12 @@ task bigJar(type: OneJar) {
 }
 
 dependencies {
-    compile 'com.lankheet.iot:lnb-domotics-datatypes:0.3+'
-    compile 'org.apache.logging.log4j:log4j-core:2.4'
+    compile 'com.lankheet.iot:datatypes:0.4+'
     compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.1'
     compile 'io.dropwizard:dropwizard-core:' + dropWizardVersion
     compile 'io.dropwizard:dropwizard-auth:' + dropWizardVersion
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
     
     testCompile 'info.cukes:cucumber-java:1.2.4'
