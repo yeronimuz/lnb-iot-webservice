@@ -1,19 +1,35 @@
+plugins {
+  id "com.github.johnrengelman.shadow" version "4.0.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'gradle-one-jar'
+apply plugin: 'application'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
-version '0.1-SNAPSHOT'
-
 ext {
-    dropWizardVersion = "1.2.2"
+    dropWizardVersion = '1.3.7'
+    baseName = 'lnb-iot-webservice'
+    classifier = 'RC'
+    version = '0.1-SNAPSHOT'
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
+
+mainClassName = 'com.lankheet.iot.webservice.WebService'
+
+shadowJar {
+    mergeServiceFiles()
+    mainClassName = mainClassName
+    baseName = project.ext.baseName
+    classifier = project.ext.classifier
+    version =  project.ext.version
+}
+
 
 eclipse {
     classpath {
@@ -27,35 +43,28 @@ jacoco {
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'IOT-Webservice',
+                   'Implementation-Version': project.ext.version,
+                   'Build-Classifier': project.ext.classifier
+                   'Main-Class': mainClassName
     }
 }
+
 
 publishing {
     publications {
         maven(MavenPublication) {
             groupId 'com.lankheet.iot'
             artifactId 'lnb-webservice'
-            version version
+            version project.ext.version
 
             from components.java
         }
     }
 }
 
-task bigJar(type: OneJar) {
-    mainClass = 'com.lankheet.iot.webservice.WebService'
-    manifest {
-        attributes 'Implementation-Title': 'IOT-Webservice',
-                   'Implementation-Version': version,
-                   'Main-Class': mainClass
-    }
-}
 
 dependencies {
     compile 'com.lankheet.iot:datatypes:0.4+'
@@ -65,6 +74,7 @@ dependencies {
     compile 'io.dropwizard:dropwizard-core:' + dropWizardVersion
     compile 'io.dropwizard:dropwizard-auth:' + dropWizardVersion
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+    compile group: 'com.smoketurner', name: 'dropwizard-swagger', version: '1.3.7-1'
     
     testCompile 'info.cukes:cucumber-java:1.2.4'
     testCompile 'info.cukes:cucumber-junit:1.2.4'

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.lankheet.iot.webservice.resources;
+package com.lankheet.iot.webservice;
 
 import java.io.IOException;
 import java.util.jar.Manifest;

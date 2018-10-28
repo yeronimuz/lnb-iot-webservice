@@ -27,8 +27,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
+import com.lankheet.iot.webservice.WebServiceInfo;
+import io.swagger.annotations.Api;
 
 @Path("/info")
+@Api("/info")
 @Produces(MediaType.APPLICATION_JSON)
 public class WebServiceInfoResource {
     private WebServiceInfo webServiceInfo;

@@ -36,6 +36,7 @@ import org.junit.Test;
 import com.lankheet.iot.datatypes.entities.Measurement;
 import com.lankheet.iot.datatypes.entities.MeasurementType;
 import com.lankheet.iot.datatypes.entities.Sensor;
+import com.lankheet.iot.datatypes.entities.SensorType;
 import com.lankheet.iot.webservice.config.DatabaseConfig;
 
 /**
@@ -60,19 +61,24 @@ public class WebServiceTest {
         properties.put("javax.persistence.jdbc.url", dbConfig.getUrl());
         properties.put("javax.persistence.jdbc.user", dbConfig.getUserName());
         properties.put("javax.persistence.jdbc.password", dbConfig.getPassword());
+        properties.put("hibernate.hbm2ddl.auto", "create");
 
         emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, properties);
         em = emf.createEntityManager();
         // Prepare database
-//        Sensor sensor1 = new Sensor(SensorType.POWER_METER.getId(), "power-meter", "meterkast");
-//        em.getTransaction().begin();
-//        em.persist(sensor1);
-//        em.getTransaction().commit();
+        Sensor sensor1 = new Sensor(SensorType.POWER_METER, "AA:BB:CC:DD", "power-meter", "meterkast");
+        Measurement measurement = new Measurement(sensor1, new Date(), MeasurementType.CONSUMED_POWER_T1, 0.1);
+        em.getTransaction().begin();
+        em.persist(sensor1);
+        em.persist(measurement);
+        em.getTransaction().commit();
     }
 
-    @Test
+    // @Test
     public void testEndToEndTest() throws Exception {
-        Measurement measurement = new Measurement(new Sensor(), new Date(), MeasurementType.ACTUAL_CONSUMED_POWER, 1.1);
+        Measurement measurement =
+                new Measurement(new Sensor(SensorType.POWER_METER, "AA:BB:CC:DD", "power-meter", "meterkast"),
+                        new Date(), MeasurementType.ACTUAL_CONSUMED_POWER, 1.1);
         Thread.sleep(2000);
         Query query = em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + measurement.getSensor()
                 + "AND e.type = " + measurement.getMeasurementType() + " AND e.value = " + measurement.getValue());

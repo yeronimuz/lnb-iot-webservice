@@ -30,7 +30,6 @@ import com.lankheet.iot.webservice.auth.DomoticsUserAuthorizer;
 import com.lankheet.iot.webservice.config.WebServiceConfig;
 import com.lankheet.iot.webservice.health.DatabaseHealthCheck;
 import com.lankheet.iot.webservice.resources.MeasurementsResource;
-import com.lankheet.iot.webservice.resources.WebServiceInfo;
 import com.lankheet.iot.webservice.resources.WebServiceInfoResource;
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
@@ -38,6 +37,8 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 /**
  * The web service has the following tasks:<BR>
@@ -61,6 +62,12 @@ public class WebService extends Application<WebServiceConfig> {
 
     @Override
     public void initialize(Bootstrap<WebServiceConfig> bootstrap) {
+        bootstrap.addBundle(new SwaggerBundle<WebServiceConfig>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(WebServiceConfig configuration) {
+                return configuration.getSwaggerBundleConfiguration();
+            }
+        });
         LOG.info("Lankheet LNB IOT web service", "");
     }
 
@@ -68,11 +75,9 @@ public class WebService extends Application<WebServiceConfig> {
     public void run(WebServiceConfig configuration, Environment environment) throws Exception {
         this.setConfiguration(configuration);
         DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
-//        MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
         WebServiceInfoResource webServiceInfoResource = new WebServiceInfoResource(new WebServiceInfo());
         MeasurementsResource measurementsResource = new MeasurementsResource(dbManager);
         environment.getApplicationContext().setContextPath("/api");
-//        environment.lifecycle().manage(mqttClientManager);
         environment.lifecycle().manage(dbManager);
         environment.jersey().register(webServiceInfoResource);
         environment.jersey().register(measurementsResource);
@@ -86,7 +91,6 @@ public class WebService extends Application<WebServiceConfig> {
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(DomoticsUser.class));        
         environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager));
-//        environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
     }
 
     public WebServiceConfig getConfiguration() {

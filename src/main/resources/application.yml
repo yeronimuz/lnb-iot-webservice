@@ -13,6 +13,9 @@ databaseConfig:
   userName: testuser
   password: p@ssW0rd
 
+swagger:
+  resourcePackage: com.lankheet.iot.webservice.resources
+  
 server:
 #  softNofileLimit: 1000
 #  hardNofileLimit: 1000
@@ -64,6 +67,6 @@ logging:
       
   appenders:
     - type: console
-      threshold: INFO
+      threshold: DEBUG
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
     

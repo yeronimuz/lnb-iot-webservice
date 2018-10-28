@@ -25,9 +25,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class WebServiceConfig extends Configuration {
 
+    @JsonProperty("swagger")
+    private SwaggerBundleConfiguration swaggerBundleConfiguration;
+    
 	@Valid
     @NotNull
     @JsonProperty
@@ -53,4 +57,20 @@ public class WebServiceConfig extends Configuration {
 	public void setDatabaseConfig(DatabaseConfig databaseConfig) {
 		this.databaseConfig = databaseConfig;
 	}
+
+    /**
+     * Get swaggerBundleConfiguration.
+     * @return the swaggerBundleConfiguration
+     */
+    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        return swaggerBundleConfiguration;
+    }
+
+    /**
+     * Set swaggerBundleConfiguration.
+     * @param swaggerBundleConfiguration the swaggerBundleConfiguration to set
+     */
+    public void setSwaggerBundleConfiguration(SwaggerBundleConfiguration swaggerBundleConfiguration) {
+        this.swaggerBundleConfiguration = swaggerBundleConfiguration;
+    }
 }
