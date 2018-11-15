@@ -47,7 +47,7 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'IOT-Webservice',
                    'Implementation-Version': project.ext.version,
-                   'Build-Classifier': project.ext.classifier
+                   'Build-Classifier': project.ext.classifier,
                    'Main-Class': mainClassName
     }
 }
