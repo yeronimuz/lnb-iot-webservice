@@ -42,8 +42,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 /**
  * The web service has the following tasks:<BR>
- * <li>It accepts measurements from the message broker
- * <li>It saves the measurements in the database
  * <li>It serves as a resource for the measurements database
  *
  */
@@ -81,15 +79,13 @@ public class WebService extends Application<WebServiceConfig> {
         environment.lifecycle().manage(dbManager);
         environment.jersey().register(webServiceInfoResource);
         environment.jersey().register(measurementsResource);
-        environment.jersey().register(new AuthDynamicFeature(
-                new BasicCredentialAuthFilter.Builder<DomoticsUser>()
-                    .setAuthenticator(new DomoticsUserAuthenticator())
-                    .setAuthorizer(new DomoticsUserAuthorizer())
-                    .setRealm("SUPER SECRET STUFF")
-                    .buildAuthFilter()));
+        environment.jersey()
+                .register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<DomoticsUser>()
+                        .setAuthenticator(new DomoticsUserAuthenticator()).setAuthorizer(new DomoticsUserAuthorizer())
+                        .setRealm("SUPER SECRET STUFF").buildAuthFilter()));
         environment.jersey().register(RolesAllowedDynamicFeature.class);
-        //If you want to use @Auth to inject a custom Principal type into your resource
-        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(DomoticsUser.class));        
+        // If you want to use @Auth to inject a custom Principal type into your resource
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(DomoticsUser.class));
         environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager));
     }
 

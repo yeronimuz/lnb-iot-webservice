@@ -1,18 +1,21 @@
 plugins {
-  id "com.github.johnrengelman.shadow" version "4.0.1"
+    id "com.github.johnrengelman.shadow" version "4.0.1"
+    id 'net.nemerosa.versioning' version '2.6.1'
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'application'
+apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
+version = '0.2-SNAPSHOT'
+
 ext {
-    dropWizardVersion = '1.3.7'
+    dropWizardVersion = '1.3.8'
+    jacksonVersion = '2.9.8'
     baseName = 'lnb-iot-webservice'
     classifier = 'RC'
-    version = '0.1-SNAPSHOT'
 }
 
 repositories {
@@ -27,9 +30,8 @@ shadowJar {
     mainClassName = mainClassName
     baseName = project.ext.baseName
     classifier = project.ext.classifier
-    version =  project.ext.version
+    version =  version
 }
-
 
 eclipse {
     classpath {
@@ -43,42 +45,42 @@ jacoco {
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'IOT-Webservice',
-                   'Implementation-Version': project.ext.version,
-                   'Build-Classifier': project.ext.classifier
-                   'Main-Class': mainClassName
-    }
-}
-
-
 publishing {
     publications {
         maven(MavenPublication) {
             groupId 'com.lankheet.iot'
-            artifactId 'lnb-webservice'
-            version project.ext.version
+            artifactId project.ext.baseName
+            version version
 
             from components.java
         }
     }
 }
 
+jar {
+    manifest {
+        attributes("Implementation-Title": "LNB domotics webservice",
+                   "Implementation-Version": version)
+    }
+}
 
 dependencies {
-    compile 'com.lankheet.iot:datatypes:0.4+'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.1'
+    compile 'com.lankheet.iot:datatypes:0.5-SNAPSHOT'
+    compile 'com.fasterxml.jackson.core:jackson-core:' + jacksonVersion
+    compile 'com.fasterxml.jackson.core:jackson-databind:' + jacksonVersion
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:' + jacksonVersion
     compile 'io.dropwizard:dropwizard-core:' + dropWizardVersion
     compile 'io.dropwizard:dropwizard-auth:' + dropWizardVersion
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
-    compile group: 'com.smoketurner', name: 'dropwizard-swagger', version: '1.3.7-1'
+    compile group: 'com.smoketurner', name: 'dropwizard-swagger', version: '1.3.8-1'
     
     testCompile 'info.cukes:cucumber-java:1.2.4'
     testCompile 'info.cukes:cucumber-junit:1.2.4'
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
     testCompile 'org.jmockit:jmockit:1.34'  
+}
+
+test {
+    exclude 'com/lankheet/iot/webservice/system/**'
 }

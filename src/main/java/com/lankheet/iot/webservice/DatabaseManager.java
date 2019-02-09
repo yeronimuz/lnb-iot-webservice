@@ -1,38 +1,23 @@
-/**
- * MIT License
- * 
- * Copyright (c) 2017 Lankheet Software and System Solutions
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package com.lankheet.iot.webservice;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.lankheet.iot.datatypes.entities.DomoticsUser;
 import com.lankheet.iot.datatypes.entities.Measurement;
 import com.lankheet.iot.webservice.config.DatabaseConfig;
 import com.lankheet.iot.webservice.dao.DaoListener;
+
 import io.dropwizard.lifecycle.Managed;
 
 public class DatabaseManager implements Managed, DaoListener {
@@ -66,19 +51,25 @@ public class DatabaseManager implements Managed, DaoListener {
     }
 
 
+    /**
+     * Request measurements of one day for a specific sensor and measurementType.
+     * 
+     */
     @Override
-    public List<Measurement> getMeasurementsBySensor(DomoticsUser dUser, int sensorId) {
-        return em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId).getResultList();
-    }
-
-    @Override
-    public List<Measurement> getMeasurementsBySensorAndType(DomoticsUser dUser, int sensorId, int type) {
-        return em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId + " AND e.type = " + type)
+    public List<Measurement> getMeasurements(DomoticsUser dUser, int sensorId, int measurementType, String startTime, String endTime) {
+    	LocalDateTime startTimeJpql = LocalDateTime.parse(startTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime endTimeJpql = LocalDateTime.parse(endTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        		
+        return em
+                .createQuery("SELECT e, e.sensor.id FROM measurements e WHERE e.sensor.id = " + sensorId
+                        + "AND e.measurementType = " + measurementType
+                        + "AND e.timeStamp between '" + startTimeJpql + "' AND '" + endTimeJpql + "' ORDER BY e.id ASC")
                 .getResultList();
     }
 
     @Override
     public Measurement getLatestMeasurement(DomoticsUser dUser) {
-        return (Measurement) em.createQuery("SELECT e FROM measurements e ORDER BY t.id DESC").getResultList().get(0);
+        return (Measurement) em.createQuery("SELECT e FROM measurements e ORDER BY t.id DESC limit 1").getResultList()
+                .get(0);
     }
 }

@@ -9,9 +9,9 @@ mqttConfig:
 
 databaseConfig:
   driver: com.mysql.jdbc.Driver
-  url: jdbc:mysql://localhost:3306/domotics
-  userName: testuser
-  password: p@ssW0rd
+  url: jdbc:mysql://localhost:9912/lnb_lankheet_com_cs1f08
+  userName: cs1f08
+  password: JiMkE#2kB
 
 swagger:
   resourcePackage: com.lankheet.iot.webservice.resources
@@ -58,6 +58,7 @@ logging:
   appenders:
     - type: file
       threshold: INFO
+      logFormat: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
       currentLogFilename: log/application.log
       archivedLogFilenamePattern: log/application-%d{yyyy-MM-dd}-%i.log.gz
@@ -65,8 +66,7 @@ logging:
 #      timeZone: UTC
       maxFileSize: 10MB
       
-  appenders:
     - type: console
       threshold: DEBUG
-      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
+      logFormat: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
     
