@@ -27,7 +27,7 @@ public class WebServiceInfoResource {
      */
     @GET
     @Timed
-    public WebServiceInfo webServiceInfo() throws IOException {
+    public WebServiceInfo webServiceInfo() {
         return webServiceInfo;
     }
 }

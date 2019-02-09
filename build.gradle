@@ -1,6 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "4.0.1"
-    id 'net.nemerosa.versioning' version '2.6.1'
+  id "com.github.johnrengelman.shadow" version "4.0.1"
+  id 'net.nemerosa.versioning' version '2.6.1'
 }
 
 apply plugin: 'java'
@@ -43,6 +43,15 @@ eclipse {
 jacoco {
     toolVersion = "0.7.6.201602180812"
     reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'IOT-Webservice',
+                   'Implementation-Version': project.ext.version,
+                   'Build-Classifier': project.ext.classifier,
+                   'Main-Class': mainClassName
+    }
 }
 
 publishing {

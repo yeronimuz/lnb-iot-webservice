@@ -12,7 +12,7 @@ import io.dropwizard.auth.basic.BasicCredentials;
  */
 public class DomoticsUserAuthenticator implements Authenticator<BasicCredentials, DomoticsUser> {
     @Override
-    public Optional<DomoticsUser> authenticate(BasicCredentials credentials) throws AuthenticationException {
+    public Optional<DomoticsUser> authenticate(BasicCredentials credentials) {
         if ("secret".equals(credentials.getPassword()) && "userName".equals(credentials.getUsername())) {
             return Optional.of(new DomoticsUser(credentials.getUsername(), credentials.getPassword()));
         }

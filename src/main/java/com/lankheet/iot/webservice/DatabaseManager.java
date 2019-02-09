@@ -33,8 +33,8 @@ public class DatabaseManager implements Managed, DaoListener {
     }
 
     @Override
-    public void start() throws Exception {
-        Map<String, String> properties = new HashMap<String, String>();
+    public void start() {
+        Map<String, String> properties = new HashMap();
         properties.put("javax.persistence.jdbc.driver", dbConfig.getDriver());
         properties.put("javax.persistence.jdbc.url", dbConfig.getUrl());
         properties.put("javax.persistence.jdbc.user", dbConfig.getUserName());
@@ -45,7 +45,7 @@ public class DatabaseManager implements Managed, DaoListener {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         em.close();
         emf.close();
     }

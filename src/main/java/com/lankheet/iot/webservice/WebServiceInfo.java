@@ -5,13 +5,13 @@ import java.util.jar.Manifest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class WebServiceInfo {
-    Manifest manifest;
+    private Manifest manifest;
 
     /**
      * Constructor.<BR>
      * When running from Eclipse http://localhost:8080/info will return the name and version of the JRE.
      * 
-     * @throws IOException
+     * @throws IOException could not read meta info
      */
     public WebServiceInfo() throws IOException {
         manifest = new Manifest();
